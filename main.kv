@@ -1,0 +1,238 @@
+#:kivy 2.0.0
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+#:import colours helper.colours
+#:import FitImage kivymd.uix.fitimage
+#:import Factory kivy.factory.Factory
+<TextField@MDTextField>
+    line_color_normal: colours["secondary"]["input"]
+    line_color_focus: colours["Secondary"]
+    hint_text_color_normal: colours["White"]
+    hint_text_color_focus: colours["White"]
+
+<Double_Container@MDGridLayout>
+    cols: 2
+    adaptive_height: True
+    spacing: 0
+<TripleLabel_Container@MDBoxLayout>
+    orientation: "horizontal"
+    adaptive_size: True
+    spacing: 35
+    padding: 5
+    md_bg_color: colours["gray"]["9.5"]
+
+<IconLabel>
+    spacing: 5
+    adaptive_size:True
+    pos_hint: {'center_x': 0.0,'center_y': 0.5}
+    MDIcon:
+        icon: root.icon_name
+        size_hint: None, 1
+    MDLabel:
+        adaptive_size: True
+        text: root.label_text
+
+<ImgCard>
+    elevation: 10
+    FitImage:
+        source: root.img
+        size_hint_y: 1
+        pos_hint: {"top": 1}
+
+
+<OCR_FileList@MDBoxLayout>
+    orientation: 'vertical'
+    md_bg_color: 0, 0, 0, 0.3
+    spacing: 5
+    padding: 10, 10, 10, 10
+   
+    MDLabel:
+        id: title
+        font_style: "H6"
+        text: "Converted OCR Files:"
+        adaptive_size: True
+        theme_text_color: "Custom"
+        text_color: colours["White"]
+    ScrollView:
+        canvas.before:
+            Color:
+                rgba: 1, 1, 1, 0.3
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        MDList:
+            spacing:2
+            padding: 2
+            id: container
+            BaseListItem:
+                text: "Two-line item"
+                secondary_text: "Secondary text here"
+                padding: 0,0
+                spacing:0
+                _txt_left_pad: 5
+                _txt_top_pad: 0
+                _txt_right_pad: 0
+                _txt_bottom_pad: 0
+                size_hint: 1, None
+                height: 40
+            BaseListItem:
+                text: "Two-line item"
+                secondary_text: "Secondary text here"
+                padding: 0,0
+                spacing:0
+                _txt_left_pad: 5
+                _txt_top_pad: 0
+                _txt_right_pad: 0
+                _txt_bottom_pad: 0
+                size_hint: 1, None
+                height: 40
+            BaseListItem:
+                text: "Two-line item"
+                secondary_text: "Secondary text here"
+                padding: 0,0
+                spacing:0
+                _txt_left_pad: 5
+                _txt_top_pad: 0
+                _txt_right_pad: 0
+                _txt_bottom_pad: 0
+                size_hint: 1, None
+                height: 40
+        
+    
+
+<SettingsBox>
+    mainPath: main_path
+    currentPage: current_page
+    currentChap: current_chap
+    orientation: 'vertical'
+    md_bg_color: 0, 0, 0, 0.3
+    spacing: 5
+    padding: 10, 10, 10, 10
+    MDLabel:
+        id: title
+        font_style: "H6"
+        text: "Configurações:"
+        adaptive_size: True
+        theme_text_color: "Custom"
+        text_color: colours["White"]
+    
+    Double_Container:
+        TextField:
+            id: main_path
+            hint_text: "Main Project Folder"
+            helper_text: "The folder path needs to be absolute"
+            helper_text_mode: "on_focus"
+        MDIconButton:
+            icon_size: "24sp"
+            icon: "folder"
+            on_press: root.open_project()
+    TextField:
+        id: current_page
+        hint_text:"Current Page to Scan"
+    TextField:
+        id: current_chap
+        hint_text: "Current Chapter to Scan"
+    MDAnchorLayout:
+        anchor_x: "left"
+        anchor_y: "bottom"        
+        #padding: 0, 0, 0.05*self.width, 0.1*self.height
+        MDBoxLayout:
+            padding: 5
+            spacing: 10
+            orientation: "vertical"
+            MDRectangleFlatButton:
+                text_color: colours["White"]
+                line_color: colours["Secondary"]
+                text: "New Project"
+                size_hint_x: None
+                on_press:root.new_project() # Factory.MyPopup().open() #
+            MDRectangleFlatButton:
+                text_color: colours["White"]
+                line_color: colours["Secondary"]
+                text: "Apply"
+                size_hint_x: None
+                on_press: root.apply_configs()
+
+<LeftPannel@MDBoxLayout>
+    orientation: 'vertical'
+    padding: 20
+    spacing: 15
+    
+    md_bg_color: colours["gray"]["10"]
+    SettingsBox:
+        size_hint: 1, 0.5
+        pos_hint: {'center_x':0.5,'center_y':0.0}
+    OCR_FileList:
+        size_hint: 1, 0.45 
+        pos_hint: {'center_x': 0.5,'center_y':0.0}
+
+
+<RightPannel>
+    pageNumber: page_number
+    completionPercent: completion_percent
+    leftPage: left_page
+    rightPage: right_page
+    orientation: 'vertical'
+    md_bg_color: colours["gray"]["9.5"]
+    MDBoxLayout:
+        orientation: 'vertical'
+        #adaptive_width: True
+        TripleLabel_Container:
+            size_hint_y: 0.1
+            MDLabel:
+                adaptive_size: True
+                font_style: "H6"
+                text: "Name of the book"
+                pos_hint: {'center_x': 0.0,'center_y': 0.5}
+                
+            IconLabel:
+                id: page_number
+                icon_name: "book-open-page-variant-outline"
+                label_text: "####/####"
+            IconLabel:
+                id: completion_percent
+                icon_name: "percent"
+                label_text: "###%(###/###)"
+        MDBoxLayout:
+            padding: 35
+            spacing: 15
+            md_bg_color: colours["gray"]["3"]
+            ImgCard:
+                id: left_page
+                img: ""
+            ImgCard:
+                id: right_page
+                img: ""
+
+
+
+<MainLayout>:
+    leftSide: left_side
+    rightSide: right_side
+    orientation: 'horizontal'
+    md_bg_color: 1, 1, 1, 1
+    size: root.size
+    LeftPannel:
+        id: left_side
+        size_hint: 1, 1
+
+    RightPannel:
+        id: right_side
+        size_hint: 2, 1
+
+<MainScreen>:
+    name: "main"
+    MainLayout:
+    #NewProject:
+
+# <NewProjectScreen>:
+#     name: "new_project"
+#     MDBoxLayout:
+#         md_bg_color: colours["Secondary"]
+
+# <MyScreenManager@ScreenManager>:
+#     screenManager: screen_manager
+#     id: screen_manager
+#     MainScreen:
+#         name: "main"
+#     NewProjectScreen:
+#         name: "new_project"
