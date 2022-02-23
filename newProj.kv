@@ -1,8 +1,10 @@
 #:kivy 2.0.0
 #:import get_color_from_hex kivy.utils.get_color_from_hex
 #:import colours helper.colours
+#:import path os.path
 
 <ProjectCard>
+    bookName: book_name
     newPath: new_path
     pageNumber: book_page_number
     chapNumber: book_chap_number 
@@ -22,21 +24,32 @@
             text_size: root.width, None
             size: self.texture_size
             font_size: "25px"
-            text: root.text
+            text: "Book Scanning - Projects"
             adaptive_size: True
             color: colours["White"]
             #pos: 12, root.height-self.height-12
         TextField:
             id: book_name
             hint_text:"Book Name"
+            helper_text: "The Document Name is Missing"
+            helper_text_mode: "on_error"
+            helper_text_mode: "on_error"
+            helper_text: "Document Name Needed"
+            required: True
         Double_Container:
             spacing: 10
             TextField:
                 id: book_page_number
                 hint_text:"Book Page Number"
+                required: True
+                helper_text_mode: "on_error"
+                helper_text: "Document Page Number Needed"
             TextField:
                 id: book_chap_number
                 hint_text:"Book Chapter Number"
+                required: True
+                helper_text_mode: "on_error"
+                helper_text: "Document Chapters Number Needed"
 
         Double_Container:
             TextField:
@@ -44,6 +57,9 @@
                 hint_text: "New Project Folder"
                 helper_text: "The folder path needs to be absolute"
                 helper_text_mode: "on_focus"
+                required: True
+                helper_text_mode: "on_error"
+                helper_text: "Path Needed"
 
             MDIconButton:
                 icon_size: "24sp"
@@ -54,26 +70,26 @@
             line_color: colours["Secondary"]
             text: "Finish"
             size_hint_x: None
+            disabled: True if (book_name.text == '' or (book_page_number.text == '' or not(book_page_number.text.isdecimal())) or (book_chap_number.text == '' or not(book_chap_number.text.isdecimal())) or not(path.isdir(new_path.text))) else False
             on_press: root.toMain()
             
 
 <NewProject>:    
     box: card_box
     outerBox: container
+    md_bg_color: 0, 0, 0, 0.75
     MDFloatLayout:
         size_hint: None, None
         size: root.size
         id: container
         orientation: 'vertical'
-        FitImage:
-            source: "images/bg.png"
+        #FitImage:
+        #    source: "images/bg.png"
         MDBoxLayout:
             id: card_box
             adaptive_size: True 
             size:  root.width*0.4, root.height
             pos_hint: {"center_x": .5, "center_y": .5}
             ProjectCard:
-                text:"Book Scanning - Projects"
+                mainObj: root.mainObj
 
-<NewProjectScreen>:
-    NewProject:

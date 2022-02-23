@@ -3,15 +3,22 @@ from kivy.uix.screenmanager import Screen
 from kivy.properties import (StringProperty, ObjectProperty)
 from kivymd.uix.behaviors import RoundedRectangularElevationBehavior
 from kivymd.uix.card import MDCard
-from kivy.uix.floatlayout import FloatLayout
+from kivymd.uix.floatlayout import MDFloatLayout
 
 import tkinter
 from tkinter import filedialog
+from os import path
+
+import json
 
 
 class ProjectCard(MDCard, RoundedRectangularElevationBehavior):
-    text = StringProperty()
+    bookName = ObjectProperty()
+    pageNumber = ObjectProperty()
+    chapNumber = ObjectProperty()
     newPath = ObjectProperty()
+
+    mainObj = ObjectProperty()
 
     def open_project(self):
         tkinter.Tk().withdraw()
@@ -21,30 +28,27 @@ class ProjectCard(MDCard, RoundedRectangularElevationBehavior):
         return
 
     def toMain(self):
-        MDApp.get_running_app().root.statedata.newFolderPath = {"text": self.newPath.text}
-        MDApp.get_running_app().root.statedata.some_value = "Teste 123"
-        MDApp.get_running_app().root.current = "main"
+        newProject = {
+            "book_name": self.bookName.text,
+            "page_number": int(self.pageNumber.text),
+            "chap_number": int(self.chapNumber.text),
+            "proj_path": self.newPath.text,
+            "cur_page": 1,
+            "cur_chap": 0,
+            "left_page": "",
+            "right_page": ""
+        }
+
+        MDApp.get_running_app().root.statedata.newProject = newProject
+        with open(f'{newProject["proj_path"]}/configs.json', 'w+') as write_file:
+            json.dump(newProject, write_file)
+        self.mainObj.ids.main_layout.disabled = ''
+        self.mainObj.remove_widget(self.mainObj.ids.new_project)
 
 
-class NewProject(FloatLayout):
-    outerBox = ObjectProperty(None)
-    box = ObjectProperty(None)
-
-    # def on_size(self, *args):
-    #     maxH = 650
-    #     maxW = 400
-    #     # Max height in porportion to width (5 height to 3 width)
-    #     calc_maxH = 1.625*self.box.size[0]
-    #     # Max width in porportion to height (3 width to 5 heigth)
-    #     calc_maxW = 0.615*self.box.size[1]
-
-    #     if(self.box.size[0] > maxW and self.box.size[1] > maxH):
-    #         self.box.size = (maxW, maxH)
-    #     elif(self.box.size[0] > calc_maxW or self.box.size[0] > maxW):
-    #         self.box.size[0] = calc_maxW if calc_maxW < maxW else maxW
-    #     elif(self.box.size[1] > calc_maxH or self.box.size[1] > maxH):
-    #         self.box.size[1] = calc_maxH if calc_maxH < maxH else maxH
 
 
-class NewProjectScreen(Screen):
+
+class NewProject(MDFloatLayout):
+    mainObj = ObjectProperty()
     pass

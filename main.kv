@@ -3,6 +3,8 @@
 #:import colours helper.colours
 #:import FitImage kivymd.uix.fitimage
 #:import Factory kivy.factory.Factory
+
+
 <TextField@MDTextField>
     line_color_normal: colours["secondary"]["input"]
     line_color_focus: colours["Secondary"]
@@ -148,11 +150,17 @@
             MDRectangleFlatButton:
                 text_color: colours["White"]
                 line_color: colours["Secondary"]
-                text: "Apply"
+                text: "Save Progress"
+                size_hint_x: None
+                on_press: root.test()
+            MDRectangleFlatButton:
+                text_color: colours["White"]
+                line_color: colours["Secondary"]
+                text: "Start"
                 size_hint_x: None
                 on_press: root.apply_configs()
 
-<LeftPannel@MDBoxLayout>
+<LeftPannel>
     orientation: 'vertical'
     padding: 20
     spacing: 15
@@ -161,16 +169,17 @@
     SettingsBox:
         size_hint: 1, 0.5
         pos_hint: {'center_x':0.5,'center_y':0.0}
+        mainObj: root.mainObj
     OCR_FileList:
         size_hint: 1, 0.45 
         pos_hint: {'center_x': 0.5,'center_y':0.0}
 
 
 <RightPannel>
-    pageNumber: page_number
-    completionPercent: completion_percent
     leftPage: left_page
     rightPage: right_page
+    bookLabel: book_label
+
     orientation: 'vertical'
     md_bg_color: colours["gray"]["9.5"]
     MDBoxLayout:
@@ -178,20 +187,16 @@
         #adaptive_width: True
         TripleLabel_Container:
             size_hint_y: 0.1
-            MDLabel:
+            BookTitle:
+                id: book_label
                 adaptive_size: True
                 font_style: "H6"
-                text: "Name of the book"
+                text: root.bookName
                 pos_hint: {'center_x': 0.0,'center_y': 0.5}
                 
             IconLabel:
-                id: page_number
                 icon_name: "book-open-page-variant-outline"
-                label_text: "####/####"
-            IconLabel:
-                id: completion_percent
-                icon_name: "percent"
-                label_text: "###%(###/###)"
+                label_text: root.label_text
         MDBoxLayout:
             padding: 35
             spacing: 15
@@ -214,25 +219,15 @@
     LeftPannel:
         id: left_side
         size_hint: 1, 1
-
+        mainObj: root.mainObj
     RightPannel:
         id: right_side
         size_hint: 2, 1
 
 <MainScreen>:
     name: "main"
+    id: mainObj
     MainLayout:
-    #NewProject:
+        id: main_layout
+        mainObj: mainObj
 
-# <NewProjectScreen>:
-#     name: "new_project"
-#     MDBoxLayout:
-#         md_bg_color: colours["Secondary"]
-
-# <MyScreenManager@ScreenManager>:
-#     screenManager: screen_manager
-#     id: screen_manager
-#     MainScreen:
-#         name: "main"
-#     NewProjectScreen:
-#         name: "new_project"
