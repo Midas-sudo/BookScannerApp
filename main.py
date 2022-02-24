@@ -1,10 +1,13 @@
 from kivymd.app import MDApp
-from kivy.properties import (StringProperty, ObjectProperty, DictProperty)
+from kivy.properties import (StringProperty, ObjectProperty, DictProperty, ListProperty)
 from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
 from kivy.lang import Builder
 from kivy.event import EventDispatcher
+from kivy.clock import Clock
 
+from kivy.uix.image import Image 
+from kivy.graphics.texture import Texture
 from kivymd.uix.behaviors import RectangularElevationBehavior
 from kivymd.uix.label import MDLabel
 from kivymd.uix.card import MDCard
@@ -15,6 +18,10 @@ import weakref
 from tkinter import filedialog
 import tkinter
 import json
+import scrcpy
+import cv2
+from functools import partial
+from os import path
 
 import phoneCommands
 import newProj
@@ -28,6 +35,11 @@ Window.size = (1345, 800)
 ready = 0
 key = 0
 pop = 0
+storedFrame = []
+
+client = scrcpy.Client(device="PL2GAR9830701342")
+client.max_fps = 60
+client.max_width= 800
 
 
 class ImgCard(MDCard, RectangularElevationBehavior):
@@ -49,8 +61,7 @@ class LeftPannel(MDBoxLayout):
 
 
 class RightPannel(MDBoxLayout):
-    leftPage = ObjectProperty()
-    rightPage = ObjectProperty()
+    videoFrame = ObjectProperty()
     bookLabel = ObjectProperty()
     bookName = StringProperty()
     label_text = StringProperty()
@@ -58,22 +69,31 @@ class RightPannel(MDBoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.bookName = "Book Title"
-        print(self)
+        #partial_pageChange = partial(self.pageChange, self = self )
+        client.add_listener(scrcpy.EVENT_FRAME, self.storeFrame)
+        Clock.schedule_interval(self.pageChange, 1/60)
+
 
     def headerChange(self, projectData):
         rightPannelObj = self.mainObj.ids.main_layout.ids.right_side
-        print(rightPannelObj)
         rightPannelObj.bookLabel.adaptive_size = "False"
         rightPannelObj.bookName = projectData["book_name"]
         rightPannelObj.bookLabel.adaptive_size = "True"
         rightPannelObj.label_text = f'{projectData["cur_page"]*100/projectData["page_number"]} % ({projectData["cur_page"]}/{projectData["page_number"]})'
+    
+    def storeFrame(self, frame):
+        global storedFrame
+        if frame is not None:
+            storedFrame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
-    def pageChange(mainObj, leftPath, rightPath):
-        print(mainObj)
-        rightPannelObj = mainObj.ids.main_layout.ids.right_side
-
-        rightPannelObj.leftPage.img = leftPath
-        rightPannelObj.rightPage.img = rightPath
+    def pageChange(self, *args):
+        global storedFrame
+        if storedFrame != []:
+            image = cv2.flip(storedFrame, 0)
+            buf = image.tostring()
+            image_texture = Texture.create(size=(image.shape[1], image.shape[0]), colorfmt='bgr')
+            image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+            self.videoFrame.texture = image_texture
 
 
 class SettingsBox(MDBoxLayout):
@@ -81,6 +101,7 @@ class SettingsBox(MDBoxLayout):
     currentPage = ObjectProperty()
     currentChap = ObjectProperty()
     mainObj = ObjectProperty()
+    
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -107,6 +128,8 @@ class SettingsBox(MDBoxLayout):
 
     def apply_configs(self):
         global ready
+        if not(path.isfile(f'{self.mainPath.text}/configs.json')):
+            return
         f = open(f'{self.mainPath.text}/configs.json')
         project = json.load(f)
 
@@ -116,6 +139,7 @@ class SettingsBox(MDBoxLayout):
         MDApp.get_running_app().root.statedata.project = project
         print(project)
         ready = 1
+
 
     def on_property(self, obj, value):
         global pop
@@ -147,71 +171,24 @@ class MainLayout(MDBoxLayout):
             if keycode == 80:  # New Chapter Left Side
                 res = phoneCommands.bulkPull(
                     projectData["proj_path"], projectData["cur_chap"], False, projectData["cur_page"])
-                
                 projectData["cur_page"] = res[0]
                 projectData["left_page"] = res[1]
                 projectData["right_page"] = res[2]
                 RightPannel.pageChange(self.mainObj, res[1], res[2])
                 MDApp.get_running_app().root.statedata.project = projectData                
                 phoneCommands.removeFiles()
-                # phoneCommands.sendInput()
-                # files = phoneCommands.checkFiles()
-                # while not(files):
-                #     files = phoneCommands.checkFiles()
-                #     pass
-                # projectData["cur_chap"] += 1
-                # result = phoneCommands.pullFiles(
-                #     projectData["proj_path"], projectData["cur_chap"], projectData["cur_chap"], projectData["cur_page"])
-                # if result[0] == "ERROR":
-                #     projectData["cur_chap"] -= 1
-                #     #SHOW WARNING#
-                #     return
-                # projectData["cur_page"] += 2
-                # projectData["left_page"] = result[0]
-                # projectData["right_page"] = result[1]
-                # RightPannel.pageChange(self.mainObj, result[0], result[1])
-                # MDApp.get_running_app().root.statedata.project = projectData
             elif keycode == 82:  # New Chapter Right Side
                 res = phoneCommands.bulkPull(
                     projectData["proj_path"], projectData["cur_chap"], False, projectData["cur_page"])
-                
                 projectData["cur_page"] = res[0]
                 projectData["left_page"] = res[1]
                 projectData["right_page"] = res[2]
                 RightPannel.pageChange(self.mainObj, res[1], res[2])
                 MDApp.get_running_app().root.statedata.project = projectData
                 phoneCommands.removeFiles()
-                # phoneCommands.sendInput()
-                # files = phoneCommands.checkFiles()
-                # while not(files):
-                #     files = phoneCommands.checkFiles()
-                #     pass
-                # result = phoneCommands.pullFiles(projectData["proj_path"], projectData["cur_chap"]+1, projectData["cur_chap"], projectData["cur_page"])
-                # if result[0] == "ERROR":
-                #     #SHOW WARNING#
-                #     return
-                # else:
-                #     projectData["cur_chap"] += 1
-                # projectData["cur_page"] +=2
-                # projectData["left_page"] = result[0]
-                # projectData["right_page"] = result[1]
-                # RightPannel.pageChange(self.mainObj, result[0], result[1])
-                # MDApp.get_running_app().root.statedata.project = projectData
             elif keycode == 79:  # Normal Scan
                 phoneCommands.sendInput()
-                # files = phoneCommands.checkFiles()
-                # while not(files):
-                #     files = phoneCommands.checkFiles()
-                #     pass
-                # result = phoneCommands.pullFiles(projectData["proj_path"], projectData["cur_chap"], projectData["cur_chap"], projectData["cur_page"])
-                # if result[0] == "ERROR":
-                #     #SHOW WARNING#
-                #     return
-                # projectData["cur_page"] +=2
-                # projectData["left_page"] = result[0]
-                # projectData["right_page"] = result[1]
-                # RightPannel.pageChange(self.mainObj, result[0], result[1])
-                # MDApp.get_running_app().root.statedata.project = projectData
+
 
             print("Captured after confirmation")
 
@@ -235,11 +212,18 @@ class MyScreenManager(ScreenManager):
 
 class MainApp(MDApp):
 
+
     def build(self):
+        Window.bind(on_request_close=self.on_request_close)
         self.theme_cls.theme_style = "Dark"
         sm = MyScreenManager(transition=FadeTransition())
         sm.add_widget(MainScreen(name="main"))
         return sm
+    
+    def on_request_close(self, *args):
+        client.stop()
+        self.stop()
 
 
+client.start(threaded=True)
 MainApp().run()

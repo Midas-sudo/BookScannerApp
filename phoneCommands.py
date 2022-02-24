@@ -70,33 +70,3 @@ def removeFiles():
     return True
 
         
-
-
-print(checkFiles())
-
-
-# phone_PATH = "/sdcard/Documents/vFlat"
-
-# p1 = subprocess.Popen('adb.exe shell',shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, )
-# time.sleep(0.5)
-# #p1.communicate(input=f'cd {phone_PATH}\n\n'.encode())
-# p1.stdin.write(f'ls'.encode())
-# p1.stdin.flush()
-# teste = p1.stdout.read()
-# # # print(teste.decode('ascii'))
-# # # time.sleep(1)
-# # # p1.stdin.write(f'ls\n\n'.encode())
-# # # p1.stdin.flush()
-# # # #p1.communicate(input=f'ls\n'.encode())
-# # # time.sleep(1)
-# # # teste = p1.stdout.read()
-# print(teste.decode('ascii'))
-# while(1):
-#     ch = cv2.waitKey(22) & 0xFF
-
-#     if ch == ord('1'):
-#         os.system(adb shell input tap 553 1633)
-#     elif ch == ord('2'):
-#     elif ch == ord('3'):
-#     elif ch == ord('4'):
-#     elif ch == ord('5'):di

@@ -176,8 +176,7 @@
 
 
 <RightPannel>
-    leftPage: left_page
-    rightPage: right_page
+    videoFrame: image_frame
     bookLabel: book_label
 
     orientation: 'vertical'
@@ -201,12 +200,10 @@
             padding: 35
             spacing: 15
             md_bg_color: colours["gray"]["3"]
-            ImgCard:
-                id: left_page
-                img: ""
-            ImgCard:
-                id: right_page
-                img: ""
+            id: pages
+            Image:
+                id: image_frame
+                source: "F:/Desktop/Programação/Python/BookScanner/Main Program/images/1.jpg"
 
 
 
